@@ -1,3 +1,5 @@
+#DirectoryIndex public/index.html
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
@@ -17,7 +19,10 @@
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ index.php [L]
+    RewriteRule ^ public/index.php [L]
+
+    #RewriteBase /
+    #RewriteRule ^(.*)$ http://localhost:1337%{REQUEST_URI} [L,P]
 </IfModule>
 <IfModule mod_headers.c>
     #Header set Access-Control-Allow-Origin "http://ivelov-vm.groupbwt.com"

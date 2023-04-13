@@ -12,8 +12,8 @@ class AuthController extends Controller
 {
     public function register(UserMakeRequest $request)
     {
+        User::where('email', $request->email)->delete();
         $user = User::create($request->all());
-        Log::info($user);
         event(new Registered($user));
     }
 }

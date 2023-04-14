@@ -11,13 +11,13 @@ class EmailController extends Controller
     {
         $request->fulfill();
 
-        return response();
+        return response(null);
     }
 
     public function sendVerificationMail(Request $request)
     {
         $request->user()->sendEmailVerificationNotification();
 
-        return response();
+        return response(null);
     }
 }

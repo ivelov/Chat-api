@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -24,6 +23,8 @@ class AuthController extends Controller
 
         Auth::login($user);
 
+        $user->photo = 'storage/avatars/default.png';
+
         $token = $user->createToken('API Token')->accessToken;
         return response()->json(['token' => $token, 'user' => $user]);
     }
@@ -31,7 +32,10 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            $user = Auth::user();
+            $user = User::findOrFail(Auth::user()->id);
+
+            $user->photo = $user->photo? 'storage/'.$user->photo : 'storage/avatars/default.png';
+
             $token = $user->createToken('API Token')->accessToken;
             return response(['token' => $token, 'user' => $user]);
         }
@@ -49,6 +53,10 @@ class AuthController extends Controller
 
     public function getUser() 
     {
-        return response()->json(Auth::user());
+        $user = Auth::user();
+
+        $user->photo = $user->photo? 'storage/'.$user->photo : 'storage/avatars/default.png';
+
+        return response()->json($user);
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\EmailController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,3 +15,6 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
 Route::get('/user', [AuthController::class, 'getUser'])->middleware('auth:api');
+
+Route::get('/chats', [ChatController::class, 'index'])->middleware('auth:api');
+Route::post('/chats', [ChatController::class, 'store'])->middleware('auth:api');

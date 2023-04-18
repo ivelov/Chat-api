@@ -18,3 +18,4 @@ Route::get('/user', [AuthController::class, 'getUser'])->middleware('auth:api');
 
 Route::get('/chats', [ChatController::class, 'index'])->middleware('auth:api');
 Route::post('/chats', [ChatController::class, 'store'])->middleware('auth:api');
+Route::get('/chats/{id}', [ChatController::class, 'show'])->middleware('auth:api');

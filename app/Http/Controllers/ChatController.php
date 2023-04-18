@@ -34,11 +34,12 @@ class ChatController extends Controller
                     ->count();
             }
 
-            $chats[] = [
-                'avatar' => $user2->photo?'storage/'.$user2->photo:'storage/avatars/default.png',
+            $chats[$chat->id] = [
+                'avatar' => $user2->photo ? 'storage/' . $user2->photo : 'storage/avatars/default.png',
                 'name' => $chatName,
-                'last_message' => $lastMessage->message,
-                'unread_count' => $unreadMessagesCount
+                'last_message' => $lastMessage ? $lastMessage->message : null,
+                'unread_count' => $unreadMessagesCount,
+                'muted' => $chat->pivot->muted
             ];
         }
 
@@ -48,31 +49,40 @@ class ChatController extends Controller
     private function getSecondUser(int $chatId, int $firstUserId)
     {
         $idOfUsersInChat = DB::table('chat_user')->where('chat_id', $chatId)->get();
-        foreach ($idOfUsersInChat as $userId) {
-            if ($userId != $firstUserId) {
-                $user2 = User::findOrFail($userId);
+        foreach ($idOfUsersInChat as $userIdRecord) {
+            if ($userIdRecord->user_id != $firstUserId) {
+                $user2 = User::findOrFail($userIdRecord->user_id);
                 return $user2;
             }
         }
         return null;
     }
 
+    private function isChatMuted(int $chatId, $userId)
+    {
+        return  DB::table('chat_user')
+            ->where('user_id', $userId)
+            ->where('chat_id', $chatId)
+            ->first()
+            ->muted;
+    }
+
     public function store(Request $request)
     {
         $user1 = Auth::user();
-        $user2 = User::where('email', $request->email)->first();
 
-        if(!$user2){
+        $user2 = User::where('email', $request->email)->first();
+        if (!$user2) {
             throw ValidationException::withMessages([
                 'email' => 'User with this email does not exist.',
             ]);
         }
 
-        //Get chats with chosen users
+        //Get chats-users relations with chosen users
         $chats_users = DB::table('chat_user')->join('users', 'users.id', '=', 'chat_user.user_id')
             ->whereIn('users.email', [$user1->email, $user2->email])->get();
 
-        //If chat already exist
+        //Create new chat if the chat does not exist
         if ($chats_users->count() > 0) {
             $chat = Chat::findOrFail($chats_users[0]->chat_id);
         } else {
@@ -82,10 +92,43 @@ class ChatController extends Controller
 
         $chatName = $user2->nickname ? $user2->nickname : $user2->name;
 
+        $messages = $chat->messages()->orderBy('created_at', 'desc')->limit(101)->get();
+        $hasMore = false;
+        if ($messages->count() > 100) {
+            $hasMore = true;
+        }
+
         return response()->json([
-            'messages' => $chat->messages()->orderBy('created_at', 'desc')->limit(100)->get(), 
+            'id' => $chat->id,
+            'messages' => $messages,
             'name' => $chatName,
-            'avatar' => $user2->photo?'storage/'.$user2->photo:'storage/avatars/default.png',
+            'avatar' => $user2->photo ? 'storage/' . $user2->photo : 'storage/avatars/default.png',
+            'hasMore' => $hasMore,
+            'muted' => $this->isChatMuted($chat->id, $user1->id),
+        ]);
+    }
+
+    public function show(int $chatId, Request $request)
+    {
+        $user = User::findOrFail(Auth::user()->id);
+
+        $chat = Chat::findOrFail($chatId);
+        $user2 = $this->getSecondUser($chatId, $user->id);
+        $chatName = $user2->nickname ? $user2->nickname : $user2->name;
+
+        $offset = intval($request->query('offset', 0));
+        $messages = $chat->messages()->orderBy('created_at', 'desc')->offset($offset)->limit(101)->get();
+        $hasMore = false;
+        if ($messages->count() > 100) {
+            $hasMore = true;
+        }
+        return response()->json([
+            'id' => $chat->id,
+            'messages' => $messages,
+            'name' => $chatName,
+            'muted' => $this->isChatMuted($chatId, $user->id),
+            'avatar' => $user2->photo ? 'storage/' . $user2->photo : 'storage/avatars/default.png',
+            'hasMore' => $hasMore,
         ]);
     }
 }

@@ -69,7 +69,7 @@ class ChatController extends Controller
 
     public function store(Request $request)
     {
-        $user1 = Auth::user();
+        $user = Auth::user();
 
         $user2 = User::where('email', $request->email)->first();
         if (!$user2) {
@@ -80,22 +80,27 @@ class ChatController extends Controller
 
         //Get chats-users relations with chosen users
         $chats_users = DB::table('chat_user')->join('users', 'users.id', '=', 'chat_user.user_id')
-            ->whereIn('users.email', [$user1->email, $user2->email])->get();
+            ->whereIn('users.email', [$user->email, $user2->email])->get();
 
         //Create new chat if the chat does not exist
         if ($chats_users->count() > 0) {
             $chat = Chat::findOrFail($chats_users[0]->chat_id);
         } else {
             $chat = Chat::create();
-            $chat->users()->saveMany([$user1, $user2]);
+            $chat->users()->saveMany([$user, $user2]);
         }
 
         $chatName = $user2->nickname ? $user2->nickname : $user2->name;
 
-        $messages = $chat->messages()->orderBy('created_at', 'desc')->limit(101)->get();
+        $messagesRaw = $chat->messages()->orderBy('created_at', 'desc')->limit(101)->get();
         $hasMore = false;
-        if ($messages->count() > 100) {
+        if ($messagesRaw->count() > 100) {
             $hasMore = true;
+        }
+        $messages = [];
+        foreach ($messagesRaw as $message) {
+            $message->fromYou = $message->user_id === $user->id;
+            $messages[] = $message;
         }
 
         return response()->json([
@@ -104,7 +109,7 @@ class ChatController extends Controller
             'name' => $chatName,
             'avatar' => $user2->photo ? 'storage/' . $user2->photo : 'storage/avatars/default.png',
             'hasMore' => $hasMore,
-            'muted' => $this->isChatMuted($chat->id, $user1->id),
+            'muted' => $this->isChatMuted($chat->id, $user->id),
         ]);
     }
 
@@ -117,11 +122,17 @@ class ChatController extends Controller
         $chatName = $user2->nickname ? $user2->nickname : $user2->name;
 
         $offset = intval($request->query('offset', 0));
-        $messages = $chat->messages()->orderBy('created_at', 'desc')->offset($offset)->limit(101)->get();
+        $messagesRaw = $chat->messages()->orderBy('created_at', 'desc')->offset($offset)->limit(101)->get();
         $hasMore = false;
-        if ($messages->count() > 100) {
+        if ($messagesRaw->count() > 100) {
             $hasMore = true;
         }
+        $messages = [];
+        foreach ($messagesRaw as $message) {
+            $message->fromYou = $message->user_id === $user->id;
+            $messages[] = $message;
+        }
+        
         return response()->json([
             'id' => $chat->id,
             'messages' => $messages,

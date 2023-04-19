@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\EmailController;
+use App\Http\Controllers\MessageController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/email/verification-notification', [EmailController::class, 'sendVerificationMail'])
@@ -19,3 +20,4 @@ Route::get('/user', [AuthController::class, 'getUser'])->middleware('auth:api');
 Route::get('/chats', [ChatController::class, 'index'])->middleware('auth:api');
 Route::post('/chats', [ChatController::class, 'store'])->middleware('auth:api');
 Route::get('/chats/{id}', [ChatController::class, 'show'])->middleware('auth:api');
+Route::post('/chats/{id}', [MessageController::class, 'store'])->middleware('auth:api');

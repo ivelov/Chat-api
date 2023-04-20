@@ -34,7 +34,7 @@ class AuthController extends Controller
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = User::findOrFail(Auth::user()->id);
 
-            $user->photo = $user->photo? 'storage/'.$user->photo : 'storage/avatars/default.png';
+            $user->photo = $user->photo? $user->photo : 'storage/avatars/default.png';
 
             $token = $user->createToken('API Token')->accessToken;
             return response(['token' => $token, 'user' => $user]);
@@ -51,12 +51,4 @@ class AuthController extends Controller
         return response(null);
     }
 
-    public function getUser() 
-    {
-        $user = Auth::user();
-
-        $user->photo = $user->photo? 'storage/'.$user->photo : 'storage/avatars/default.png';
-
-        return response()->json($user);
-    }
 }

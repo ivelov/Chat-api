@@ -35,7 +35,7 @@ class ChatController extends Controller
             }
 
             $chats[$chat->id] = [
-                'avatar' => $user2->photo ? 'storage/' . $user2->photo : 'storage/avatars/default.png',
+                'avatar' => $user2->photo ? $user2->photo : 'storage/avatars/default.png',
                 'name' => $chatName,
                 'last_message' => $lastMessage ? $lastMessage->message : null,
                 'unread_count' => $unreadMessagesCount,
@@ -107,7 +107,7 @@ class ChatController extends Controller
             'id' => $chat->id,
             'messages' => $messages,
             'name' => $chatName,
-            'avatar' => $user2->photo ? 'storage/' . $user2->photo : 'storage/avatars/default.png',
+            'avatar' => $user2->photo ? $user2->photo : 'storage/avatars/default.png',
             'hasMore' => $hasMore,
             'muted' => $this->isChatMuted($chat->id, $user->id),
         ]);
@@ -138,7 +138,7 @@ class ChatController extends Controller
             'messages' => $messages,
             'name' => $chatName,
             'muted' => $this->isChatMuted($chatId, $user->id),
-            'avatar' => $user2->photo ? 'storage/' . $user2->photo : 'storage/avatars/default.png',
+            'avatar' => $user2->photo ? $user2->photo : 'storage/avatars/default.png',
             'hasMore' => $hasMore,
         ]);
     }

@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class ChatController extends Controller
@@ -58,8 +59,12 @@ class ChatController extends Controller
         return null;
     }
 
-    private function isChatMuted(int $chatId, $userId)
+    private function isChatMuted(int $chatId, int $userId)
     {
+        Log::info($chatId);
+        Log::info($userId);
+        Log::info(DB::table('chat_user')->get());
+
         return  DB::table('chat_user')
             ->where('user_id', $userId)
             ->where('chat_id', $chatId)
@@ -78,13 +83,14 @@ class ChatController extends Controller
             ]);
         }
 
-        //Get chats-users relations with chosen users
-        $chats_users = DB::table('chat_user')->join('users', 'users.id', '=', 'chat_user.user_id')
-            ->whereIn('users.email', [$user->email, $user2->email])->get();
+        //Get common chat between users
+        $chat_user = DB::table('chat_user')->where('user_id', $user2->id)->whereIn('chat_id', function($query) use($user){
+            $query->select('chat_id')->from('chat_user')->where('user_id', $user->id);
+        })->first();
 
         //Create new chat if the chat does not exist
-        if ($chats_users->count() > 0) {
-            $chat = Chat::findOrFail($chats_users[0]->chat_id);
+        if ($chat_user) {
+            $chat = Chat::findOrFail($chat_user->chat_id);
         } else {
             $chat = Chat::create();
             $chat->users()->saveMany([$user, $user2]);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewMessageEvent;
 use App\Http\Requests\MessageCreateRequest;
 use App\Models\Message;
 use Illuminate\Http\Request;
@@ -21,6 +22,16 @@ class MessageController extends Controller
 
         $message = Message::create($data);
 
+        broadcast(new NewMessageEvent($user->id, $chatId, $message->message));
+
         return response()->json($message);
+    }
+
+    public function markAsRead(int $chatId)
+    {
+        $user = Auth::user();
+        Message::where('chat_id', $chatId)->whereNot('user_id', $user->id)->update(['read'=>true]);
+
+        return response(null);
     }
 }

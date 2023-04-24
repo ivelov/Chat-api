@@ -18,18 +18,20 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
  * allows your team to easily build robust real-time web applications.
  */
 
-// import Echo from 'laravel-echo';
+// import Echo from '@ably/laravel-echo';
+// import * as Ably from 'ably';
 
-// import Pusher from 'pusher-js';
-// window.Pusher = Pusher;
-
+// window.Ably = Ably; // make globally accessible to Echo
 // window.Echo = new Echo({
-//     broadcaster: 'pusher',
-//     key: import.meta.env.VITE_PUSHER_APP_KEY,
-//     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER ?? 'mt1',
-//     wsHost: import.meta.env.VITE_PUSHER_HOST ? import.meta.env.VITE_PUSHER_HOST : `ws-${import.meta.env.VITE_PUSHER_APP_CLUSTER}.pusher.com`,
-//     wsPort: import.meta.env.VITE_PUSHER_PORT ?? 80,
-//     wssPort: import.meta.env.VITE_PUSHER_PORT ?? 443,
-//     forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',
-//     enabledTransports: ['ws', 'wss'],
+//     broadcaster: 'ably',
+//     authEndpoint: '/broadcasting/auth',
+//     echoMessages: true, // self-echo for published message is set to false internally.
+//     queueMessages: true, // default: true, maintains queue for messages to be sent.
+//     disconnectedRetryTimeout: 15000, // Retry connect after 15 seconds when client gets disconnected
+// });
+
+// window.Echo.connector.ably.connection.on(stateChange => {
+//     if (stateChange.current === 'connected') {
+//         console.log('connected to ably server');
+//     }
 // });

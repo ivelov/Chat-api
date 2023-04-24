@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewMessageEvent;
 use App\Models\Chat;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class ChatController extends Controller
@@ -61,10 +61,6 @@ class ChatController extends Controller
 
     private function isChatMuted(int $chatId, int $userId)
     {
-        Log::info($chatId);
-        Log::info($userId);
-        Log::info(DB::table('chat_user')->get());
-
         return  DB::table('chat_user')
             ->where('user_id', $userId)
             ->where('chat_id', $chatId)
@@ -147,5 +143,13 @@ class ChatController extends Controller
             'avatar' => $user2->photo ? $user2->photo : 'storage/avatars/default.png',
             'hasMore' => $hasMore,
         ]);
+    }
+
+    public function test()
+    {
+        $user = Auth::user();
+        broadcast(new NewMessageEvent($user->id, 2, 'aaaaa'));
+        // NewMessageEvent::dispatch($user->id, 2, 'aaaaa');
+        //broadcast(new OrderShipmentStatusUpdated($update))->toOthers();
     }
 }

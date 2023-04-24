@@ -23,6 +23,7 @@ Route::get('/chats', [ChatController::class, 'index'])->middleware('auth:api');
 Route::post('/chats', [ChatController::class, 'store'])->middleware('auth:api');
 Route::get('/chats/{id}', [ChatController::class, 'show'])->middleware('auth:api');
 Route::post('/chats/{id}', [MessageController::class, 'store'])->middleware('auth:api');
+Route::post('/chats/{id}/mark-as-read', [MessageController::class, 'markAsRead'])->middleware('auth:api');
 
 
 Route::post('/test', [ChatController::class, 'test'])->middleware('auth:api');

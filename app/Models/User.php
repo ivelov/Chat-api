@@ -48,6 +48,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function chats(): BelongsToMany
     {
-        return $this->belongsToMany(Chat::class);
+        return $this->belongsToMany(Chat::class)->withPivot('muted');
     }
 }

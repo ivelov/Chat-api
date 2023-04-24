@@ -22,7 +22,7 @@ class MessageController extends Controller
 
         $message = Message::create($data);
 
-        broadcast(new NewMessageEvent($user->id, $chatId, $message->message));
+        broadcast(new NewMessageEvent($user->id, $chatId, $message->message))->toOthers();
 
         return response()->json($message);
     }

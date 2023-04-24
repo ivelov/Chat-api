@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class ChatController extends Controller
@@ -148,9 +149,6 @@ class ChatController extends Controller
 
     public function test()
     {
-        $user = Auth::user();
-        broadcast(new NewMessageEvent($user->id, 2, 'aaaaa'));
-        // NewMessageEvent::dispatch($user->id, 2, 'aaaaa');
-        //broadcast(new OrderShipmentStatusUpdated($update))->toOthers();
+
     }
 }

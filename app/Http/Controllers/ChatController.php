@@ -40,7 +40,8 @@ class ChatController extends Controller
                 'name' => $chatName,
                 'last_message' => $lastMessage ? $lastMessage->message : null,
                 'unread_count' => $unreadMessagesCount,
-                'muted' => $chat->pivot->muted
+                'muted' => $chat->pivot->muted,
+                'messages' => []
             ];
         }
 

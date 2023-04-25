@@ -50,4 +50,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsToMany(Chat::class)->withPivot('muted');
     }
+
+    public function photo()
+    {
+        return $this->photo = $this->photo? $this->photo : 'storage/avatars/default.png';
+    }
 }

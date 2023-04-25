@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewChatEvent;
 use App\Events\NewMessageEvent;
 use App\Models\Chat;
 use App\Models\User;
@@ -37,7 +38,7 @@ class ChatController extends Controller
             }
 
             $chats[$chat->id] = [
-                'avatar' => $user2->photo ? $user2->photo : 'storage/avatars/default.png',
+                'avatar' => $user2->photo(),
                 'name' => $chatName,
                 'last_message' => $lastMessage ? $lastMessage->message : null,
                 'unread_count' => $unreadMessagesCount,
@@ -72,7 +73,7 @@ class ChatController extends Controller
 
     public function store(Request $request)
     {
-        $user = Auth::user();
+        $user = User::findOrFail(Auth::user()->id);
 
         $user2 = User::where('email', $request->email)->first();
         if (!$user2) {
@@ -82,7 +83,7 @@ class ChatController extends Controller
         }
 
         //Get common chat between users
-        $chat_user = DB::table('chat_user')->where('user_id', $user2->id)->whereIn('chat_id', function($query) use($user){
+        $chat_user = DB::table('chat_user')->where('user_id', $user2->id)->whereIn('chat_id', function ($query) use ($user) {
             $query->select('chat_id')->from('chat_user')->where('user_id', $user->id);
         })->first();
 
@@ -92,6 +93,8 @@ class ChatController extends Controller
         } else {
             $chat = Chat::create();
             $chat->users()->saveMany([$user, $user2]);
+
+            broadcast(new NewChatEvent($user2->id, $chat->id, $user->nickname ? $user->nickname : $user->name, $user->photo()));
         }
 
         $chatName = $user2->nickname ? $user2->nickname : $user2->name;
@@ -111,7 +114,7 @@ class ChatController extends Controller
             'id' => $chat->id,
             'messages' => $messages,
             'name' => $chatName,
-            'avatar' => $user2->photo ? $user2->photo : 'storage/avatars/default.png',
+            'avatar' => $user2->photo(),
             'hasMore' => $hasMore,
             'muted' => $this->isChatMuted($chat->id, $user->id),
         ]);
@@ -136,13 +139,13 @@ class ChatController extends Controller
             $message->fromYou = $message->user_id === $user->id;
             $messages[] = $message;
         }
-        
+
         return response()->json([
             'id' => $chat->id,
             'messages' => $messages,
             'name' => $chatName,
             'muted' => $this->isChatMuted($chatId, $user->id),
-            'avatar' => $user2->photo ? $user2->photo : 'storage/avatars/default.png',
+            'avatar' => $user2->photo(),
             'hasMore' => $hasMore,
         ]);
     }
@@ -163,6 +166,14 @@ class ChatController extends Controller
     public function unmute(int $chatId)
     {
         $this->changeMute($chatId, false);
+
+        return response(null);
+    }
+
+    public function test()
+    {
+        $user = User::findOrFail(Auth::user()->id);
+        $user->chats()->first()->delete();
 
         return response(null);
     }

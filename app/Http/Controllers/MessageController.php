@@ -30,7 +30,7 @@ class MessageController extends Controller
     public function markAsRead(int $chatId)
     {
         $user = Auth::user();
-        Message::where('chat_id', $chatId)->whereNot('user_id', $user->id)->update(['read'=>true]);
+        Message::where('chat_id', $chatId)->whereNot('user_id', $user->id)->update(['read' => true]);
 
         return response(null);
     }

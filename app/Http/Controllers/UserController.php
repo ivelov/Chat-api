@@ -12,9 +12,9 @@ class UserController extends Controller
 {
     public function getUser() 
     {
-        $user = Auth::user();
+        $user = User::findOrFail(Auth::user()->id);
 
-        $user->photo = $user->photo? $user->photo : 'storage/avatars/default.png';
+        $user->photo = $user->photo();
         
         return response()->json($user);
     }
@@ -51,7 +51,7 @@ class UserController extends Controller
             $user->save();
         }
 
-        $user->photo = $user->photo? $user->photo : 'storage/avatars/default.png';
+        $user->photo = $user->photo();
         return response()->json($user);
     }
 }

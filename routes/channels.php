@@ -3,7 +3,6 @@
 use App\Models\User;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,4 +21,8 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 
 Broadcast::channel('chats.{chatId}', function (User $user, int $chatId) {
     return DB::table('chat_user')->where('user_id', $user->id)->where('chat_id', $chatId)->count() > 0;
+});
+
+Broadcast::channel('users.{userId}', function (User $user, int $userId) {
+    return (int) $user->id === (int) $userId;
 });

@@ -26,3 +26,5 @@ Route::post('/chats/{id}', [MessageController::class, 'store'])->middleware('aut
 Route::post('/chats/{id}/mark-as-read', [MessageController::class, 'markAsRead'])->middleware('auth:api');
 Route::post('/chats/{id}/mute', [ChatController::class, 'mute'])->middleware('auth:api');
 Route::post('/chats/{id}/unmute', [ChatController::class, 'unmute'])->middleware('auth:api');
+
+Route::post('/test', [ChatController::class, 'test'])->middleware('auth:api');

@@ -147,8 +147,23 @@ class ChatController extends Controller
         ]);
     }
 
-    public function test()
+    private function changeMute(int $chatId, bool $to)
     {
+        $user = Auth::user();
+        DB::table('chat_user')->where('user_id', $user->id)->where('chat_id', $chatId)->update(['muted' => $to]);
+    }
 
+    public function mute(int $chatId)
+    {
+        $this->changeMute($chatId, true);
+
+        return response(null);
+    }
+
+    public function unmute(int $chatId)
+    {
+        $this->changeMute($chatId, false);
+
+        return response(null);
     }
 }

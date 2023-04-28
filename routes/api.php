@@ -19,12 +19,14 @@ Route::post('/logout', [AuthController::class, 'logout']);
 Route::get('/user', [UserController::class, 'getUser'])->middleware('auth:api');
 Route::post('/user/{id}', [UserController::class, 'update'])->middleware('auth:api');
 
-Route::get('/chats', [ChatController::class, 'index'])->middleware('auth:api');
-Route::post('/chats', [ChatController::class, 'store'])->middleware('auth:api');
-Route::get('/chats/{id}', [ChatController::class, 'show'])->middleware('auth:api');
-Route::post('/chats/{id}', [MessageController::class, 'store'])->middleware('auth:api');
-Route::post('/chats/{id}/mark-as-read', [MessageController::class, 'markAsRead'])->middleware('auth:api');
-Route::post('/chats/{id}/mute', [ChatController::class, 'mute'])->middleware('auth:api');
-Route::post('/chats/{id}/unmute', [ChatController::class, 'unmute'])->middleware('auth:api');
-
-Route::post('/test', [ChatController::class, 'test'])->middleware('auth:api');
+Route::middleware('auth:api')->group(function () {
+    Route::get('/chats', [ChatController::class, 'index']);
+    Route::post('/chats', [ChatController::class, 'store']);
+    Route::get('/chats/{id}', [ChatController::class, 'show']);
+    Route::post('/chats/{id}', [MessageController::class, 'store']);
+    Route::post('/chats/{id}/mark-as-read', [MessageController::class, 'markAsRead']);
+    Route::post('/chats/{id}/mute', [ChatController::class, 'mute']);
+    Route::post('/chats/{id}/unmute', [ChatController::class, 'unmute']);
+    
+    Route::post('/test', [ChatController::class, 'test']);
+});

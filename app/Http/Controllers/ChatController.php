@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\NewChatEvent;
 use App\Events\NewMessageEvent;
 use App\Models\Chat;
+use App\Models\Message;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -40,7 +41,7 @@ class ChatController extends Controller
             $chats[$chat->id] = [
                 'avatar' => $user2->photo(),
                 'name' => $chatName,
-                'last_message' => $lastMessage ? $lastMessage->message : null,
+                'last_message' => $lastMessage ? $lastMessage : null,
                 'unread_count' => $unreadMessagesCount,
                 'muted' => $chat->pivot->muted,
                 'messages' => []
@@ -172,8 +173,10 @@ class ChatController extends Controller
 
     public function test()
     {
-        $user = User::findOrFail(Auth::user()->id);
-        $user->chats()->first()->delete();
+        $messages= Message::where('id', '>', 40)->get();
+        foreach ($messages as $message) {
+            $message->delete();
+        }
 
         return response(null);
     }

@@ -24,7 +24,9 @@ class MessageCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'message'=>'required|min:1',
+            'message'=>'required_without:attachment',
+            'attachment'=>'file|max:8000',
+            'attachment_type'=>'required_with:attachment',
         ];
     }
 }

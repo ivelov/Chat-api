@@ -16,18 +16,22 @@ class NewMessageEvent implements ShouldBroadcast
 
     public int $chatId;
     public int $userId;
-    public string $message;
+    public ?string $message;
+    public ?string $attachment_type;
+    public ?string $attachment;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(int $userId, int $chatId, string $message)
+    public function __construct(int $userId, int $chatId, ?string $message, ?string $attachment_type, ?string $attachment)
     {
         $this->userId = $userId;
         $this->chatId = $chatId;
         $this->message = $message;
+        $this->attachment_type = $attachment_type;
+        $this->attachment = $attachment;
     }
 
     /**

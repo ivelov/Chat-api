@@ -13,6 +13,8 @@ class Message extends Model
         'message',
         'user_id',
         'chat_id',
-        'read'
+        'read',
+        'attachment',
+        'attachment_type',
     ];
 }

@@ -30,6 +30,4 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('/messages/{messageId}/delete', [MessageController::class, 'destroy']);
     Route::post('/messages/{messageId}', [MessageController::class, 'update']);
-    
-    Route::post('/test', [ChatController::class, 'test']);
 });

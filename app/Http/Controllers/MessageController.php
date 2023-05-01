@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MessageDeleteEvent;
 use App\Events\MessageUpdateEvent;
 use App\Events\NewMessageEvent;
 use App\Http\Requests\MessageCreateRequest;
@@ -80,7 +81,17 @@ class MessageController extends Controller
 
     public function destroy(int $messageId)
     {
+        $user = Auth::user();
+
         $message = Message::findOrFail($messageId);
+        
+        $chatId = $message->chat()->first()->id;
+        broadcast(new MessageDeleteEvent(
+            $message->id,
+            $user->id,
+            $chatId,
+        ))->toOthers();
+
         $message->delete();
 
         return response(null);

@@ -172,14 +172,4 @@ class ChatController extends Controller
 
         return response(null);
     }
-
-    public function test()
-    {
-        $messages= Message::where('id', '>', 40)->get();
-        foreach ($messages as $message) {
-            $message->delete();
-        }
-
-        return response(null);
-    }
 }

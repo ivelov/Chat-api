@@ -27,6 +27,9 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/chats/{id}/mark-as-read', [MessageController::class, 'markAsRead']);
     Route::post('/chats/{id}/mute', [ChatController::class, 'mute']);
     Route::post('/chats/{id}/unmute', [ChatController::class, 'unmute']);
+
+    Route::post('/messages/{messageId}/delete', [MessageController::class, 'destroy']);
+    Route::post('/messages/{messageId}', [MessageController::class, 'update']);
     
     Route::post('/test', [ChatController::class, 'test']);
 });

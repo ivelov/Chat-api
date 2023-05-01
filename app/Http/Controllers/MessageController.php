@@ -8,6 +8,8 @@ use App\Models\Message;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class MessageController extends Controller
 {
@@ -30,7 +32,14 @@ class MessageController extends Controller
 
         $message = Message::create($data);
 
-        broadcast(new NewMessageEvent($user->id, $chatId, $message->message, $message->attachment_type, $message->attachment))->toOthers();
+        broadcast(new NewMessageEvent(
+            $message->id,
+            $user->id,
+            $chatId,
+            $message->message,
+            $message->attachment_type,
+            $message->attachment
+        ))->toOthers();
 
         return response()->json($message);
     }
@@ -39,6 +48,29 @@ class MessageController extends Controller
     {
         $user = Auth::user();
         Message::where('chat_id', $chatId)->whereNot('user_id', $user->id)->update(['read' => true]);
+
+        return response(null);
+    }
+
+    public function update(int $messageId, Request $request)
+    {
+        $message = Message::findOrFail($messageId);
+        if(!$request->message && !$message->attachment){
+            throw ValidationException::withMessages([
+                'message' => 'Message cannot be empty',
+            ]);
+        }
+
+        $message->message = $request->message;
+        $message->save();
+
+        return response()->json($message);
+    }
+
+    public function destroy(int $messageId)
+    {
+        $message = Message::findOrFail($messageId);
+        $message->delete();
 
         return response(null);
     }

@@ -15,6 +15,8 @@ use Illuminate\Validation\ValidationException;
 
 class ChatController extends Controller
 {
+    public int $messagesPerPage = 20;
+
     public function index()
     {
         $user = User::find(Auth::user()->id);
@@ -130,9 +132,9 @@ class ChatController extends Controller
         $chatName = $user2->nickname ? $user2->nickname : $user2->name;
 
         $offset = intval($request->query('offset', 0));
-        $messagesRaw = $chat->messages()->orderBy('created_at', 'desc')->offset($offset)->limit(101)->get();
+        $messagesRaw = $chat->messages()->orderBy('created_at', 'desc')->offset($offset)->limit($this->messagesPerPage+1)->get();
         $hasMore = false;
-        if ($messagesRaw->count() > 100) {
+        if ($messagesRaw->count() > $this->messagesPerPage) {
             $hasMore = true;
         }
         $messages = [];

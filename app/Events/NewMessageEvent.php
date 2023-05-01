@@ -15,6 +15,7 @@ class NewMessageEvent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public int $chatId;
+    public int $id;
     public int $userId;
     public ?string $message;
     public ?string $attachment_type;
@@ -25,8 +26,9 @@ class NewMessageEvent implements ShouldBroadcast
      *
      * @return void
      */
-    public function __construct(int $userId, int $chatId, ?string $message, ?string $attachment_type, ?string $attachment)
+    public function __construct(int $id, int $userId, int $chatId, ?string $message, ?string $attachment_type, ?string $attachment)
     {
+        $this->id = $id;
         $this->userId = $userId;
         $this->chatId = $chatId;
         $this->message = $message;

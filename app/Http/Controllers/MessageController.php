@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MessageUpdateEvent;
 use App\Events\NewMessageEvent;
 use App\Http\Requests\MessageCreateRequest;
 use App\Models\Message;
@@ -54,6 +55,8 @@ class MessageController extends Controller
 
     public function update(int $messageId, Request $request)
     {
+        $user = Auth::user();
+
         $message = Message::findOrFail($messageId);
         if(!$request->message && !$message->attachment){
             throw ValidationException::withMessages([
@@ -63,6 +66,14 @@ class MessageController extends Controller
 
         $message->message = $request->message;
         $message->save();
+
+        $chatId = $message->chat()->first()->id;
+        broadcast(new MessageUpdateEvent(
+            $message->id,
+            $user->id,
+            $chatId,
+            $message->message,
+        ))->toOthers();
 
         return response()->json($message);
     }

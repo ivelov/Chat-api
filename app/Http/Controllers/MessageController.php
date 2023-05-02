@@ -8,7 +8,6 @@ use App\Events\NewMessageEvent;
 use App\Http\Requests\MessageCreateRequest;
 use App\Models\Message;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -59,6 +58,11 @@ class MessageController extends Controller
         $user = Auth::user();
 
         $message = Message::findOrFail($messageId);
+
+        if($user->id !== $message->user_id){
+            abort(403);
+        }
+
         if(!$request->message && !$message->attachment){
             throw ValidationException::withMessages([
                 'message' => 'Message cannot be empty',
@@ -84,6 +88,10 @@ class MessageController extends Controller
         $user = Auth::user();
 
         $message = Message::findOrFail($messageId);
+
+        if($user->id !== $message->user_id){
+            abort(403);
+        }
         
         $chatId = $message->chat()->first()->id;
         broadcast(new MessageDeleteEvent(

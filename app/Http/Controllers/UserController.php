@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserSearchRequest;
+use App\Http\Requests\UserUpdateRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +21,7 @@ class UserController extends Controller
         return response()->json($user);
     }
 
-    public function update(int $userId, Request $request)
+    public function update(int $userId, UserUpdateRequest $request)
     {
         $user = User::findOrFail($userId);
         if($user->id !== Auth::user()->id){

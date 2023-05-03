@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserSearchRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -53,5 +54,22 @@ class UserController extends Controller
 
         $user->photo = $user->photo();
         return response()->json($user);
+    }
+
+    public function search(UserSearchRequest $request)
+    {
+        $maxUsers = 30;
+
+        $byName = User::where('name', 'like', '%' . $request->searchText . '%');
+        $byNick = User::where('nickname', 'like', '%' . $request->searchText . '%');
+        $users = User::where('email', 'like', '%' . $request->searchText . '%')->union($byName)->union($byNick)->limit($maxUsers)->get();
+
+        $data = [];
+        foreach ($users as $user) {
+            $user->photo = $user->photo();
+            $data[] = $user;
+        }
+
+        return response()->json($data);
     }
 }

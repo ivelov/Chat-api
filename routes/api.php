@@ -18,6 +18,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
 Route::get('/user', [UserController::class, 'getUser'])->middleware('auth:api');
 Route::post('/user/{id}', [UserController::class, 'update'])->middleware('auth:api');
+Route::post('/users', [UserController::class, 'search'])->middleware('auth:api');
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/chats', [ChatController::class, 'index']);

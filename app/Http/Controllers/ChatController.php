@@ -78,12 +78,7 @@ class ChatController extends Controller
     {
         $user = User::findOrFail(Auth::user()->id);
 
-        $user2 = User::where('email', $request->email)->first();
-        if (!$user2) {
-            throw ValidationException::withMessages([
-                'email' => 'User with this email does not exist.',
-            ]);
-        }
+        $user2 = User::findOrFail($request->userId);
 
         //Get common chat between users
         $chat_user = DB::table('chat_user')->where('user_id', $user2->id)->whereIn('chat_id', function ($query) use ($user) {

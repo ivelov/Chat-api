@@ -12,44 +12,44 @@ use Illuminate\Support\Facades\File;
 
 class UserController extends Controller
 {
-    public function getUser() 
+    public function getUser()
     {
         $user = User::findOrFail(Auth::user()->id);
 
         $user->photo = $user->photo();
-        
+
         return response()->json($user);
     }
 
     public function update(int $userId, UserUpdateRequest $request)
     {
         $user = User::findOrFail($userId);
-        if($user->id !== Auth::user()->id){
+        if ($user->id !== Auth::user()->id) {
             abort(403);
         }
-        
-        if($request->nickname){
+
+        if ($request->nickname) {
             $user->nickname = $request->nickname;
         }
 
-        if($request->name){
+        if ($request->name) {
             $user->name = $request->name;
         }
 
-        if($request->lang){
+        if ($request->lang) {
             $user->lang = $request->lang;
         }
 
-        if($request->photo){
+        if ($request->photo) {
             $hashName = Str::random(40) . '.' . $request->photo->getClientOriginalExtension();
             $request->photo->move(public_path('/storage/avatars/'), $hashName);
-            if($user->photo){
+            if ($user->photo) {
                 File::delete(public_path($user->photo));
             }
             $user->photo = 'storage/avatars/' . $hashName;
         }
 
-        if($user->isDirty()){
+        if ($user->isDirty()) {
             $user->save();
         }
 
@@ -59,11 +59,13 @@ class UserController extends Controller
 
     public function search(UserSearchRequest $request)
     {
+        $user = Auth::user();
         $maxUsers = 30;
 
-        $byName = User::where('name', 'like', '%' . $request->searchText . '%');
-        $byNick = User::where('nickname', 'like', '%' . $request->searchText . '%');
-        $users = User::where('email', 'like', '%' . $request->searchText . '%')->union($byName)->union($byNick)->limit($maxUsers)->get();
+        $byName = User::where('name', 'like', '%' . $request->searchText . '%')->where('id', '!=', $user->id);
+        $byNick = User::where('nickname', 'like', '%' . $request->searchText . '%')->where('id', '!=', $user->id);
+        $users = User::where('email', 'like', '%' . $request->searchText . '%')->where('id', '!=', $user->id)
+            ->union($byName)->union($byNick)->limit($maxUsers)->get();
 
         $data = [];
         foreach ($users as $user) {

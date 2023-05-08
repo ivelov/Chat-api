@@ -53,6 +53,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function photo()
     {
-        return $this->photo = $this->photo? $this->photo : 'storage/avatars/default.png';
+        return $this->photo? $this->photo : 'storage/avatars/default.png';
     }
 }

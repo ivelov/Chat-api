@@ -16,14 +16,13 @@ class AuthController extends Controller
     {
         $data = $request->all();
         $data['password'] = Hash::make($data['password']);
-        $data['role'] = "poster";
         $user = User::create($data);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        $user->photo = $user->photo();
+        $user->photo = 'storage/avatars/default.png';
 
         $token = $user->createToken('API Token')->accessToken;
         return response()->json(['token' => $token, 'user' => $user]);

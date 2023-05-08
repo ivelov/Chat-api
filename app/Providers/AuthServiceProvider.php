@@ -30,7 +30,7 @@ class AuthServiceProvider extends ServiceProvider
 
         VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
             $urlWithoutDomain = substr($url, strpos($url, 'verify/')+7);
-            $frontUrl = env('FRONT_URL', 'http://localhost:8080');
+            $frontUrl = config('FRONT_URL', 'http://ivelov-vm.groupbwt.com');
             $newUrl = $frontUrl . "/verify/" . $urlWithoutDomain;
 
             return (new MailMessage)
